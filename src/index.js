@@ -71,7 +71,7 @@ function renderPage(data) {
         downloads,
       }) => {
         return `<div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+  <img src="${webformatURL}" alt="${tags}" loading="lazy" width=440 height = 400 />
   <div class="info">
     <p class="info-item">
       <b>Likes</b>:${likes}
