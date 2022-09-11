@@ -11,16 +11,6 @@ const formEl = document.querySelector('#search-form');
 const inputEl = document.querySelector('[type="text"]');
 const galleryContainer = document.querySelector('.gallery');
 const loadBtnEl = document.querySelector('.load-btn');
-// const BASE_URL = 'https://pixabay.com/api/';
-// const searchParams = new URLSearchParams({
-//   key: '29821254-cc8d55b85aa42c363f8211fb8',
-//   image_type: 'photo',
-//   orientation: 'horizontal',
-//   safesearch: 'true',
-//   per_page: 4,
-//   page: 1,
-// });
-// let searchContext = '';
 
 formEl.addEventListener('submit', onSubmit);
 
@@ -31,31 +21,28 @@ function onSubmit(e) {
     return;
   }
   ApiSrv.resetPage();
-  ApiSrv.getImages().then(renderPage);
+  ApiSrv.getImages().then(value => {
+    if (value.length > 0) {
+      renderPage(value);
+      loadBtnEl.classList.remove('is-hidden');
+    }
+  });
   clearContainer();
-
-  //   searchContext = e.currentTarget.elements.searchQuery.value;
-  //     .axios(`${BASE_URL}?${searchParams}&q=${searchContext}`)
-  //     .then(res => {
-  //       return res.data.hits;
-  //     })
-  //     .then(renderPage)
-  //     .catch(err => console.log(err));
-  loadBtnEl.classList.remove('is-hidden');
 }
 
 loadBtnEl.addEventListener('click', onLoadBtn);
 
 function onLoadBtn(e) {
-  ApiSrv.getImages().then(renderPage);
-
-  //   console.log(searchParams);
-  //   axios(`${BASE_URL}?${searchParams}&q=${searchContext}`)
-  //     .then(res => {
-  //       return res.data.hits;
-  //     })
-  //     .then(renderPage)
-  //     .catch(err => console.log(err));
+  ApiSrv.loadMore().then(value => {
+    if (value.length > 0) {
+      renderPage(value);
+      return;
+    }
+    loadBtnEl.classList.add('is-hidden');
+    // Notiflix.Notify.failure(
+    //   "We're sorry, but you've reached the end of search results."
+    // );
+  });
 }
 
 function renderPage(data) {
@@ -70,8 +57,8 @@ function renderPage(data) {
         comments,
         downloads,
       }) => {
-        return `<div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy" width=440 height = 400 />
+        return ` <a href="${largeImageURL}" class="gallery__item"><div class="photo-card">
+  <img src="${webformatURL}" alt="${tags}" loading="lazy" width=440 height = 400 "gallery__image" />
   <div class="info">
     <p class="info-item">
       <b>Likes</b>:${likes}
@@ -86,7 +73,7 @@ function renderPage(data) {
       <b>Downloads</b>:${downloads}
     </p>
   </div>
-</div>`;
+</div></a>`;
       }
     )
     .join('');
