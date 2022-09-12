@@ -8,11 +8,11 @@ import ImgApiSrv from './imgapi';
 const ApiSrv = new ImgApiSrv();
 
 const formEl = document.querySelector('#search-form');
-const inputEl = document.querySelector('[type="text"]');
 const galleryContainer = document.querySelector('.gallery');
 const loadBtnEl = document.querySelector('.load-btn');
 
 formEl.addEventListener('submit', onSubmit);
+loadBtnEl.addEventListener('click', onLoadBtn);
 
 function onSubmit(e) {
   e.preventDefault();
@@ -28,9 +28,17 @@ function onSubmit(e) {
     }
   });
   clearContainer();
+  ApiSrv.getResponseData().then(res => {
+    if (res.data.totalHits > 0) {
+      Notiflix.Notify.success(`Hooray! We found ${res.data.totalHits} images.`);
+    }
+    if (res.data.totalHits === 0) {
+      Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    }
+  });
 }
-
-loadBtnEl.addEventListener('click', onLoadBtn);
 
 function onLoadBtn(e) {
   ApiSrv.loadMore().then(value => {
@@ -42,6 +50,13 @@ function onLoadBtn(e) {
     // Notiflix.Notify.failure(
     //   "We're sorry, but you've reached the end of search results."
     // );
+    ApiSrv.getResponseData().then(res => {
+      if (res.data.totalHits < (ImgApiSrv.page - 1) * 40) {
+        Notiflix.Notify.failure(
+          "We're sorry, but you've reached the end of search results."
+        );
+      }
+    });
   });
 }
 
@@ -58,7 +73,7 @@ function renderPage(data) {
         downloads,
       }) => {
         return ` <a href="${largeImageURL}" class="gallery__item"><div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy" width=440 height = 400 "gallery__image" />
+  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   <div class="info">
     <p class="info-item">
       <b>Likes</b>:${likes}

@@ -8,16 +8,19 @@
     <link rel="stylesheet" href="./main.css" />
   </head>
   <body>
-    <form class="search-form" id="search-form">
-      <input
-        type="text"
-        name="searchQuery"
-        autocomplete="off"
-        placeholder="Search images..."
-      />
+    <header class="header">
+      <form class="search-form" id="search-form">
+        <input
+          class="form-input"
+          type="text"
+          name="searchQuery"
+          autocomplete="off"
+          placeholder="Search images..."
+        />
+        <button type="submit" class="form-btn">Search</button>
+      </form>
+    </header>
 
-      <button type="submit">Search</button>
-    </form>
     <div class="gallery"></div>
     <button type="button" class="load-btn is-hidden">Load More</button>
     <script src="index.js" type="module"></script>
