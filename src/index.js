@@ -1,8 +1,8 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
+// import SimpleLightbox from 'simplelightbox';
+// import 'simplelightbox/dist/simple-lightbox.min.css';
 import ImgApiSrv from './imgapi';
 
 const ApiSrv = new ImgApiSrv();
@@ -10,6 +10,12 @@ const ApiSrv = new ImgApiSrv();
 const formEl = document.querySelector('#search-form');
 const galleryContainer = document.querySelector('.gallery');
 const loadBtnEl = document.querySelector('.load-btn');
+
+// const lightBox = new SimpleLightbox('.gallery a', {
+//   captionDelay: 250,
+//   captionsData: 'alt',
+//   overlay: true,
+// });
 
 formEl.addEventListener('submit', onSubmit);
 loadBtnEl.addEventListener('click', onLoadBtn);
@@ -21,42 +27,34 @@ function onSubmit(e) {
     return;
   }
   ApiSrv.resetPage();
-  ApiSrv.getImages().then(value => {
-    if (value.length > 0) {
-      renderPage(value);
-      loadBtnEl.classList.remove('is-hidden');
-    }
-  });
-  clearContainer();
-  ApiSrv.getResponseData().then(res => {
+  ApiSrv.getImages().then(res => {
     if (res.data.totalHits > 0) {
+      renderPage(res.data.hits);
       Notiflix.Notify.success(`Hooray! We found ${res.data.totalHits} images.`);
     }
     if (res.data.totalHits === 0) {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
+      loadBtnEl.classList.add('is-hidden');
+      formEl.reset();
     }
   });
+  clearContainer();
 }
 
 function onLoadBtn(e) {
-  ApiSrv.loadMore().then(value => {
-    if (value.length > 0) {
-      renderPage(value);
-      return;
+  ApiSrv.getImages().then(res => {
+    if (res.data.totalHits > 0) {
+      renderPage(res.data.hits);
+      // lightBox.refresh();
     }
-    loadBtnEl.classList.add('is-hidden');
-    // Notiflix.Notify.failure(
-    //   "We're sorry, but you've reached the end of search results."
-    // );
-    ApiSrv.getResponseData().then(res => {
-      if (res.data.totalHits < (ImgApiSrv.page - 1) * 40) {
-        Notiflix.Notify.failure(
-          "We're sorry, but you've reached the end of search results."
-        );
-      }
-    });
+    if (res.data.totalHits < (ApiSrv.page - 1) * 40) {
+      Notiflix.Notify.failure(
+        "We're sorry, but you've reached the end of search results."
+      );
+      loadBtnEl.classList.add('is-hidden');
+    }
   });
 }
 
@@ -72,8 +70,8 @@ function renderPage(data) {
         comments,
         downloads,
       }) => {
-        return ` <a href="${largeImageURL}" class="gallery__item"><div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+        return ` <a href="${largeImageURL}" class="gallery__item link"><div class="photo-card">
+  <img src="${webformatURL}" alt="${tags}" loading="lazy" class="gallery__image" />
   <div class="info">
     <p class="info-item">
       <b>Likes</b>:${likes}
@@ -92,6 +90,8 @@ function renderPage(data) {
       }
     )
     .join('');
+  loadBtnEl.classList.remove('is-hidden');
+
   return galleryContainer.insertAdjacentHTML('beforeend', markup);
 }
 
