@@ -83,7 +83,10 @@ button:focus {
 
 }
 
-.load-btn {}
+.container-btn {
+    display: flex;
+    justify-content: center;
+}
 
 .is-hidden {
     opacity: 0;

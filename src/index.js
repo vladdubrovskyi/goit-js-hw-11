@@ -1,8 +1,8 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-// import SimpleLightbox from 'simplelightbox';
-// import 'simplelightbox/dist/simple-lightbox.min.css';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 import ImgApiSrv from './imgapi';
 
 const ApiSrv = new ImgApiSrv();
@@ -11,11 +11,11 @@ const formEl = document.querySelector('#search-form');
 const galleryContainer = document.querySelector('.gallery');
 const loadBtnEl = document.querySelector('.load-btn');
 
-// const lightBox = new SimpleLightbox('.gallery a', {
-//   captionDelay: 250,
-//   captionsData: 'alt',
-//   overlay: true,
-// });
+const lightBox = new SimpleLightbox('.gallery a', {
+  captionDelay: 250,
+  captionsData: 'alt',
+  overlay: true,
+});
 
 formEl.addEventListener('submit', onSubmit);
 loadBtnEl.addEventListener('click', onLoadBtn);
@@ -30,6 +30,8 @@ function onSubmit(e) {
   ApiSrv.getImages().then(res => {
     if (res.data.totalHits > 0) {
       renderPage(res.data.hits);
+      loadBtnEl.classList.remove('is-hidden');
+      lightBox.refresh();
       Notiflix.Notify.success(`Hooray! We found ${res.data.totalHits} images.`);
     }
     if (res.data.totalHits === 0) {
@@ -47,7 +49,8 @@ function onLoadBtn(e) {
   ApiSrv.getImages().then(res => {
     if (res.data.totalHits > 0) {
       renderPage(res.data.hits);
-      // lightBox.refresh();
+      loadBtnEl.classList.remove('is-hidden');
+      lightBox.refresh();
     }
     if (res.data.totalHits < (ApiSrv.page - 1) * 40) {
       Notiflix.Notify.failure(
@@ -90,7 +93,7 @@ function renderPage(data) {
       }
     )
     .join('');
-  loadBtnEl.classList.remove('is-hidden');
+  loadBtnEl.classList.add('is-hidden');
 
   return galleryContainer.insertAdjacentHTML('beforeend', markup);
 }
